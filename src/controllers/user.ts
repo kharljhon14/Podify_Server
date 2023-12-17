@@ -5,6 +5,8 @@ import User from '@/models/user';
 import { CreateUser } from '@/types/user';
 import { CreateUserSchema } from '@/utils/validationSchema';
 import { MAILTRAP_PASSWORD, MAILTRAP_USER } from '@/utils/variables';
+import { generateToken } from '@/utils/helper';
+import EmailVerificationToken from '@/models/emailVerificationToken';
 
 export async function create(req: CreateUser, res: Response) {
   const { email, password, name } = req.body;
@@ -19,6 +21,13 @@ export async function create(req: CreateUser, res: Response) {
     password,
   });
 
+  const token = generateToken();
+
+  await EmailVerificationToken.create({
+    owner: newUser._id,
+    token,
+  });
+
   const transport = nodemailer.createTransport({
     host: 'sandbox.smtp.mailtrap.io',
     port: 2525,
@@ -28,7 +37,11 @@ export async function create(req: CreateUser, res: Response) {
     },
   });
 
-  transport.sendMail({ to: newUser.email, from: 'auth@myapp.com', html: '<h1>1234</h1>' });
+  transport.sendMail({
+    to: newUser.email,
+    from: 'auth@myapp.com',
+    html: `<h1>Your verification token is ${token}</h1>`,
+  });
 
   res.status(201).json({ data: { newUser } });
 }
