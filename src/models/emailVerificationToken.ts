@@ -24,6 +24,10 @@ const emailVerificationTokenSchema = new Schema<EmailVerificationTokenDocument>(
   },
 });
 
+emailVerificationTokenSchema.pre('save', function (next) {
+  next();
+});
+
 export default model(
   'EmailVerificationToken',
   emailVerificationTokenSchema
