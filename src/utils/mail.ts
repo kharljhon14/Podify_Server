@@ -26,12 +26,6 @@ export async function sendVerificationEmail({ name, email, userId }: Profile, to
   const transport = generateEmailTransporter();
 
   const welcomeMsg = `Hi ${name} welcome to Podify. Use the given OTP to verify your email`;
-
-  await EmailVerificationToken.create({
-    owner: userId,
-    token,
-  });
-
   transport.sendMail({
     to: email,
     from: VERIFICATION_EMAIL,

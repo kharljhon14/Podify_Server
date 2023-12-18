@@ -14,3 +14,9 @@ export interface VerifyEmailRequest extends Request {
     token: string;
   };
 }
+
+export interface ReVerifyEmailRequest extends Request {
+  body: {
+    userId: string;
+  };
+}
