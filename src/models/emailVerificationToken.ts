@@ -1,5 +1,5 @@
+import { compare, hash } from 'bcrypt';
 import { Model, ObjectId, Schema, model } from 'mongoose';
-import { ref } from 'yup';
 
 interface EmailVerificationTokenDocument {
   owner: ObjectId;
@@ -7,7 +7,11 @@ interface EmailVerificationTokenDocument {
   createdAt: Date;
 }
 
-const emailVerificationTokenSchema = new Schema<EmailVerificationTokenDocument>({
+interface Methods {
+  compareToken(token: string): Promise<boolean>;
+}
+
+const emailVerificationTokenSchema = new Schema<EmailVerificationTokenDocument, {}, Methods>({
   owner: {
     type: Schema.Types.ObjectId,
     required: true,
@@ -24,11 +28,17 @@ const emailVerificationTokenSchema = new Schema<EmailVerificationTokenDocument>(
   },
 });
 
-emailVerificationTokenSchema.pre('save', function (next) {
+emailVerificationTokenSchema.pre('save', async function (next) {
+  if (this.isModified('token')) this.token = await hash(this.token, 10);
   next();
 });
 
-export default model(
-  'EmailVerificationToken',
-  emailVerificationTokenSchema
-) as Model<EmailVerificationTokenDocument>;
+emailVerificationTokenSchema.methods.compareToken = async function (token) {
+  return await compare(token, this.token);
+};
+
+export default model('EmailVerificationToken', emailVerificationTokenSchema) as Model<
+  EmailVerificationTokenDocument,
+  {},
+  Methods
+>;
