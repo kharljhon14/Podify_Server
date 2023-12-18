@@ -1,3 +1,4 @@
+import { isValidObjectId } from 'mongoose';
 import { object, string } from 'yup';
 
 export const CreateUserSchema = object().shape({
@@ -11,4 +12,15 @@ export const CreateUserSchema = object().shape({
       /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$/,
       'Password should contain special and numerical charaters '
     ),
+});
+
+export const EmailVerificationSchema = object().shape({
+  token: string().trim().required('Invalid token'),
+  userId: string()
+    .transform(function (value) {
+      if (this.isType(value) && isValidObjectId(value)) return value;
+
+      return '';
+    })
+    .required('Invalid user id'),
 });
