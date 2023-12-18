@@ -9,7 +9,7 @@ import {
 } from '@/types/user';
 import { CreateUserSchema } from '@/utils/validationSchema';
 import { generateToken } from '@/utils/helper';
-import { sendVerificationEmail } from '@/utils/mail';
+import { sendForgotPasswordEmail, sendVerificationEmail } from '@/utils/mail';
 import EmailVerificationToken from '@/models/emailVerificationToken';
 import { isValidObjectId } from 'mongoose';
 import PasswordResetToken from '@/models/passwordResetToken';
@@ -33,7 +33,7 @@ export async function create(req: CreateUserRequest, res: Response) {
     token,
   });
 
-  sendVerificationEmail({ name, email, userId: user._id.toString() }, token);
+  sendVerificationEmail({ name, email }, token);
 
   res.status(201).json({ data: { id: user._id, name, email } });
 }
@@ -74,7 +74,7 @@ export async function reVerifyEmail(req: ReVerifyEmailRequest, res: Response) {
     token,
   });
 
-  sendVerificationEmail({ name: user.name, userId: user._id.toString(), email: user.email }, token);
+  sendVerificationEmail({ name: user.name, email: user.email }, token);
 
   res.json({ message: 'Please check your email' });
 }
@@ -88,6 +88,8 @@ export async function generateForgotPasswordLink(
   const user = await User.findOne({ email });
   if (!user) return res.status(404).json({ error: 'Account not found' });
 
+  await PasswordResetToken.findOneAndDelete({ owner: user._id });
+
   const token = crypto.randomBytes(36).toString('hex');
 
   await PasswordResetToken.create({
@@ -97,5 +99,7 @@ export async function generateForgotPasswordLink(
 
   const resetLink = `${PASSWORD_RESET_LINK}?token=${token}&userId=${user._id}`;
 
-  res.json({ data: resetLink });
+  sendForgotPasswordEmail({ email, link: resetLink });
+
+  res.json({ message: 'Check your email' });
 }
