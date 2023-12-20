@@ -14,7 +14,7 @@ export const CreateUserSchema = object().shape({
     ),
 });
 
-export const EmailVerificationSchema = object().shape({
+export const TokenAndUserIdSchema = object().shape({
   token: string().trim().required('Invalid token'),
   userId: string()
     .transform(function (value) {

@@ -26,3 +26,10 @@ export interface GenerateForgotPasswordLinkRequest extends Request {
     email: string;
   };
 }
+
+export interface VerifyForgotPasswordTokenRequest extends Request {
+  body: {
+    userId: string;
+    token: string;
+  };
+}
