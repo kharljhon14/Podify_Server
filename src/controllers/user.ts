@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 import User from '@/models/user';
 import {
@@ -6,7 +6,6 @@ import {
   GenerateForgotPasswordLinkRequest,
   ReVerifyEmailRequest,
   VerifyEmailRequest,
-  VerifyForgotPasswordTokenRequest,
 } from '@/types/user';
 import { CreateUserSchema } from '@/utils/validationSchema';
 import { generateToken } from '@/utils/helper';
@@ -105,19 +104,6 @@ export async function generateForgotPasswordLink(
   res.json({ message: 'Check your email' });
 }
 
-export async function isValidForgotPasswordToken(
-  req: VerifyForgotPasswordTokenRequest,
-  res: Response
-) {
-  const { token, userId } = req.body;
-
-  const resetToken = await PasswordResetToken.findOne({ owner: userId });
-
-  if (!resetToken) return res.status(403).json({ error: 'Unauthorized access, invalid token' });
-
-  const matched = await resetToken.compareToken(token);
-
-  if (!matched) return res.status(403).json({ error: 'Unauthorized access, invalid token' });
-
-  res.json({ message: 'Token is valid' });
+export function grantValid(_req: Request, res: Response) {
+  res.json({ valid: true });
 }

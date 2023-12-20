@@ -1,10 +1,11 @@
 import {
   create,
   generateForgotPasswordLink,
-  isValidForgotPasswordToken,
+  grantValid,
   reVerifyEmail,
   verifyEmail,
 } from '@/controllers/user';
+import { isValidForgotPasswordToken } from '@/middlewares/auth';
 import { validate } from '@/middlewares/validator';
 import { CreateUserSchema, TokenAndUserIdSchema } from '@/utils/validationSchema';
 import { Router } from 'express';
@@ -18,7 +19,8 @@ router.post('/forgot-password', generateForgotPasswordLink);
 router.post(
   '/verify-forgot-password-token',
   validate(TokenAndUserIdSchema),
-  isValidForgotPasswordToken
+  isValidForgotPasswordToken,
+  grantValid
 );
 
 export default router;
