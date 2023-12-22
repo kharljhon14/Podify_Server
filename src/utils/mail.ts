@@ -1,6 +1,11 @@
 import nodemailer from 'nodemailer';
 import path from 'path';
-import { MAILTRAP_PASSWORD, MAILTRAP_USER, VERIFICATION_EMAIL } from '@/utils/variables';
+import {
+  MAILTRAP_PASSWORD,
+  MAILTRAP_USER,
+  SIGN_IN_URL,
+  VERIFICATION_EMAIL,
+} from '@/utils/variables';
 
 import { generateTemplate } from '@/templates/template';
 
@@ -71,6 +76,37 @@ export async function sendForgotPasswordEmail(options: Options) {
       banner: 'cid:forget_password',
       link: options.link,
       btnTitle: 'Reset Password',
+    }),
+    attachments: [
+      {
+        filename: 'logo.png',
+        path: path.join(__dirname, '../templates/logo.png'),
+        cid: 'logo',
+      },
+      {
+        filename: 'forget_password.png',
+        path: path.join(__dirname, '../templates/forget_password.png'),
+        cid: 'forget_password',
+      },
+    ],
+  });
+}
+
+export async function sendForgotPasswordSuccessEmail(name: string, email: string) {
+  const transport = generateEmailTransporter();
+
+  const message = `Dear ${name} we just updated your new password. You can now sign in with your new password.`;
+  transport.sendMail({
+    to: email,
+    from: VERIFICATION_EMAIL,
+    subject: 'Password Updated Successfully',
+    html: generateTemplate({
+      title: 'Password Updated Successfully',
+      message: message,
+      logo: 'cid:logo',
+      banner: 'cid:forget_password',
+      link: SIGN_IN_URL,
+      btnTitle: 'Sign in',
     }),
     attachments: [
       {

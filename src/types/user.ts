@@ -33,3 +33,10 @@ export interface VerifyForgotPasswordTokenRequest extends Request {
     token: string;
   };
 }
+
+export interface UpdatePasswordRequest extends Request {
+  body: {
+    userId: string;
+    password: string;
+  };
+}

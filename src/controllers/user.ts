@@ -5,11 +5,16 @@ import {
   CreateUserRequest,
   GenerateForgotPasswordLinkRequest,
   ReVerifyEmailRequest,
+  UpdatePasswordRequest,
   VerifyEmailRequest,
 } from '@/types/user';
 import { CreateUserSchema } from '@/utils/validationSchema';
 import { generateToken } from '@/utils/helper';
-import { sendForgotPasswordEmail, sendVerificationEmail } from '@/utils/mail';
+import {
+  sendForgotPasswordEmail,
+  sendForgotPasswordSuccessEmail,
+  sendVerificationEmail,
+} from '@/utils/mail';
 import EmailVerificationToken from '@/models/emailVerificationToken';
 import { isValidObjectId } from 'mongoose';
 import PasswordResetToken from '@/models/passwordResetToken';
@@ -106,4 +111,25 @@ export async function generateForgotPasswordLink(
 
 export function grantValid(_req: Request, res: Response) {
   res.json({ valid: true });
+}
+
+export async function updatePassword(req: UpdatePasswordRequest, res: Response) {
+  const { password, userId } = req.body;
+
+  const user = await User.findById(userId);
+
+  if (!user) return res.status(403).json({ error: ' Unauthorized access!' });
+
+  const matched = await user.comparePassword(password);
+
+  if (matched)
+    return res.status(422).json({ error: 'Password must be different from old password!' });
+
+  user.password = password;
+  await user.save();
+
+  await PasswordResetToken.findOneAndDelete({ owner: user._id });
+
+  sendForgotPasswordSuccessEmail(user.name, user.email);
+  res.json({ message: 'Password update successfully' });
 }

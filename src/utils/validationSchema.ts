@@ -24,3 +24,14 @@ export const TokenAndUserIdSchema = object().shape({
     })
     .required('Invalid user id'),
 });
+
+export const UpdatePasswordSchema = object().shape({
+  password: string()
+    .trim()
+    .required('Password is required')
+    .min(8, 'Password should at least 8 characters')
+    .matches(
+      /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$/,
+      'Password should contain special and numerical charaters '
+    ),
+});
