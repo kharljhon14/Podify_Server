@@ -35,3 +35,15 @@ export const UpdatePasswordSchema = object().shape({
       'Password should contain special and numerical charaters '
     ),
 });
+
+export const SignInValidationSchema = object().shape({
+  email: string().required('Email is required').email('Invalid email'),
+  password: string()
+    .trim()
+    .required('Password is required')
+    .min(8, 'Password should at least 8 characters')
+    .matches(
+      /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$/,
+      'Password should contain special and numerical charaters '
+    ),
+});

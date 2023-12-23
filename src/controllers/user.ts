@@ -19,7 +19,8 @@ import EmailVerificationToken from '@/models/emailVerificationToken';
 import { isValidObjectId } from 'mongoose';
 import PasswordResetToken from '@/models/passwordResetToken';
 import crypto from 'crypto';
-import { PASSWORD_RESET_LINK } from '@/utils/variables';
+import { JWT_SECRET, PASSWORD_RESET_LINK } from '@/utils/variables';
+import jwt from 'jsonwebtoken';
 
 export async function create(req: CreateUserRequest, res: Response) {
   const { email, password, name } = req.body;
@@ -132,4 +133,40 @@ export async function updatePassword(req: UpdatePasswordRequest, res: Response) 
 
   sendForgotPasswordSuccessEmail(user.name, user.email);
   res.json({ message: 'Password update successfully' });
+}
+
+export async function signIn(req: Request, res: Response) {
+  const { email, password } = req.body;
+
+  //Look for existing user
+  const user = await User.findOne({
+    email,
+  });
+
+  if (!user) return res.status(403).json({ error: 'Email or password is incorrect' });
+
+  const matched = await user.comparePassword(password);
+
+  //Compare the password
+  if (!matched) return res.status(403).json({ error: 'Email or password is incorrect' });
+
+  //Generate token
+
+  const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1d' });
+  user.token.push(token);
+
+  await user.save();
+
+  res.json({
+    profile: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      verified: user.verified,
+      avatar: user.avatar?.url,
+      followers: user.followers.length,
+      followings: user.followings.length,
+    },
+    token,
+  });
 }
