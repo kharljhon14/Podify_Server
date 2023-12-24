@@ -153,20 +153,12 @@ export async function signIn(req: Request, res: Response) {
   //Generate token
 
   const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1d' });
-  user.token.push(token);
+  user.tokens.push(token);
 
   await user.save();
 
   res.json({
-    profile: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      verified: user.verified,
-      avatar: user.avatar?.url,
-      followers: user.followers.length,
-      followings: user.followings.length,
-    },
+    profile: req.user,
     token,
   });
 }

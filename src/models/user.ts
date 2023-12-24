@@ -7,7 +7,7 @@ interface UserDocument {
   password: string;
   verified: boolean;
   avatar?: { url: string; publicId: string };
-  token: Array<string>;
+  tokens: Array<string>;
   favorites: Array<ObjectId>;
   followers: Array<ObjectId>;
   followings: Array<ObjectId>;
@@ -61,7 +61,7 @@ const userSchema = new Schema<UserDocument, {}, Methods>(
         ref: 'User',
       },
     ],
-    token: [String],
+    tokens: [String],
   },
   { timestamps: true }
 );
