@@ -43,6 +43,22 @@ router.post(
 
 //Sign in user
 router.post('/sign-in', validate(SignInValidationSchema), signIn);
-router.post('/is-auth', mustAuth);
+router.post('/is-auth', mustAuth, (req, res) => {
+  res.json({
+    profile: req.user,
+  });
+});
+
+//Authentication
+router.post('/public', (_req, res) => {
+  res.json({
+    message: 'Your are in public route',
+  });
+});
+router.post('/private', mustAuth, (_req, res) => {
+  res.json({
+    message: 'Your are in private route',
+  });
+});
 
 export default router;
