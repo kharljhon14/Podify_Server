@@ -5,6 +5,7 @@ import {
   reVerifyEmail,
   sendProfile,
   signIn,
+  signOut,
   updatePassword,
   updateProfile,
   verifyEmail,
@@ -49,6 +50,8 @@ router.post(
 router.post('/sign-in', validate(SignInValidationSchema), signIn);
 router.post('/is-auth', mustAuth, sendProfile);
 
+//Sign out user
+router.post('/sign-out', mustAuth, signOut);
 //File upload
 router.post('/update-profile', mustAuth, fileParser, updateProfile);
 

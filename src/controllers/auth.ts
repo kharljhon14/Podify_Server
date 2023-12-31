@@ -210,3 +210,22 @@ export async function updateProfile(req: RequestWithFiles, res: Response) {
 export async function sendProfile(req: Request, res: Response) {
   res.json({ profile: req.user });
 }
+
+export async function signOut(req: Request, res: Response) {
+  const { fromAll } = req.query;
+
+  const { token } = req;
+
+  const user = await User.findById(req.user.id);
+
+  if (!user) throw new Error('Something went wrong, user not found!');
+
+  //sign out from all
+
+  if (fromAll === 'yes') user.tokens = [];
+  else user.tokens = user.tokens.filter((t) => t !== token);
+
+  await user.save();
+
+  res.json({ success: true });
+}

@@ -17,6 +17,7 @@ declare global {
         followers: number;
         followings: number;
       };
+      token: string;
     }
   }
 }
@@ -66,6 +67,8 @@ export async function mustAuth(req: Request, res: Response, next: NextFunction) 
       followers: user.followers.length,
       followings: user.followings.length,
     };
+
+    req.token = token;
 
     next();
   } catch (error) {
