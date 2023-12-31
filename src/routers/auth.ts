@@ -3,11 +3,12 @@ import {
   generateForgotPasswordLink,
   grantValid,
   reVerifyEmail,
+  sendProfile,
   signIn,
   updatePassword,
   updateProfile,
   verifyEmail,
-} from '@/controllers/user';
+} from '@/controllers/auth';
 import { isValidForgotPasswordToken, mustAuth } from '@/middlewares/auth';
 import { validate } from '@/middlewares/validator';
 
@@ -19,10 +20,8 @@ import {
 } from '@/utils/validationSchema';
 
 import { RequestHandler, Router } from 'express';
-import formidable from 'formidable';
-import path from 'path';
-import fs from 'fs';
-import { RequestWithFiles, fileParser } from '@/middlewares/fileParser';
+
+import { fileParser } from '@/middlewares/fileParser';
 
 const router = Router();
 
@@ -48,11 +47,7 @@ router.post(
 
 //Sign in user
 router.post('/sign-in', validate(SignInValidationSchema), signIn);
-router.post('/is-auth', mustAuth, (req, res) => {
-  res.json({
-    profile: req.user,
-  });
-});
+router.post('/is-auth', mustAuth, sendProfile);
 
 //File upload
 router.post('/update-profile', mustAuth, fileParser, updateProfile);

@@ -9,7 +9,7 @@ import {
   VerifyEmailRequest,
 } from '@/types/user';
 import { CreateUserSchema } from '@/utils/validationSchema';
-import { generateToken } from '@/utils/helper';
+import { formatProfile, generateToken } from '@/utils/helper';
 import {
   sendForgotPasswordEmail,
   sendForgotPasswordSuccessEmail,
@@ -23,6 +23,7 @@ import { JWT_SECRET, PASSWORD_RESET_LINK } from '@/utils/variables';
 import jwt from 'jsonwebtoken';
 import { RequestWithFiles } from '@/middlewares/fileParser';
 import cloudinary from '@/cloud';
+import { profile } from 'console';
 
 export async function create(req: CreateUserRequest, res: Response) {
   const { email, password, name } = req.body;
@@ -203,5 +204,9 @@ export async function updateProfile(req: RequestWithFiles, res: Response) {
 
   await user.save();
 
-  res.json({ avatar: user.avatar, name: user.name });
+  res.json({ profile: formatProfile(user) });
+}
+
+export async function sendProfile(req: Request, res: Response) {
+  res.json({ profile: req.user });
 }
