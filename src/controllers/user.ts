@@ -21,6 +21,8 @@ import PasswordResetToken from '@/models/passwordResetToken';
 import crypto from 'crypto';
 import { JWT_SECRET, PASSWORD_RESET_LINK } from '@/utils/variables';
 import jwt from 'jsonwebtoken';
+import { RequestWithFiles } from '@/middlewares/fileParser';
+import cloudinary from '@/cloud';
 
 export async function create(req: CreateUserRequest, res: Response) {
   const { email, password, name } = req.body;
@@ -161,4 +163,41 @@ export async function signIn(req: Request, res: Response) {
     profile: req.user,
     token,
   });
+}
+
+export async function updateProfile(req: RequestWithFiles, res: Response) {
+  const { name } = req.body;
+
+  const avatar = req.files?.avatar;
+
+  const user = await User.findById(req.user.id);
+
+  if (!user) throw new Error('Something went wrong, user not found!');
+
+  if (typeof name !== 'string') return res.status(422).json({ error: 'Invalid name' });
+
+  if (name.trim().length < 3) return res.status(422).json({ error: 'Invalid name' });
+
+  user.name = name;
+
+  if (avatar) {
+    // if there is  already an avatar file, we want to remove that
+
+    //upload new avatar file
+    const { url, secure_url, public_id } = await cloudinary.uploader.upload(avatar.filepath, {
+      width: 300,
+      height: 300,
+      crop: 'thumb',
+      gravity: 'face',
+    });
+
+    user.avatar = {
+      url: secure_url,
+      publicId: public_id,
+    };
+  }
+
+  await user.save();
+
+  res.json({ avatar: user.avatar, name: user.name });
 }
