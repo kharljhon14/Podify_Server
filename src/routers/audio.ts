@@ -1,5 +1,5 @@
 import { createAudio } from '@/controllers/audio';
-import { mustAuth } from '@/middlewares/auth';
+import { isVerified, mustAuth } from '@/middlewares/auth';
 import { fileParser } from '@/middlewares/fileParser';
 import { validate } from '@/middlewares/validator';
 import { AudioValidationScehma } from '@/utils/validationSchema';
