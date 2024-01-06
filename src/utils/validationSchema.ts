@@ -1,5 +1,6 @@
 import { isValidObjectId } from 'mongoose';
 import { object, string } from 'yup';
+import { categories } from './audioCategories';
 
 export const CreateUserSchema = object().shape({
   name: string().trim().required('Name is required').max(40, 'Name is too long!'),
@@ -46,4 +47,10 @@ export const SignInValidationSchema = object().shape({
       /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$/,
       'Password should contain special and numerical charaters '
     ),
+});
+
+export const AudioValidationScehma = object().shape({
+  title: string().required('Title is missing'),
+  about: string().required('About is missing'),
+  category: string().oneOf(categories, 'Invalid category').required('Category is missing'),
 });

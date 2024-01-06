@@ -76,3 +76,10 @@ export async function mustAuth(req: Request, res: Response, next: NextFunction) 
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+
+export async function isVerified(req: Request, res: Response, next: NextFunction) {
+  if (!req.user.verified)
+    return res.status(403).json({ error: 'Please verify your email account' });
+
+  next();
+}
