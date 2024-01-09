@@ -10,7 +10,7 @@ export interface AudioDocument {
     url: string;
     publicId: string;
   };
-  poster: {
+  poster?: {
     url: string;
     publicId: string;
   };
