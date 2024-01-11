@@ -30,5 +30,11 @@ export async function toggleFavorite(req: Request, res: Response) {
     status = 'added';
   }
 
+  if (status === 'added') {
+    await Audio.findByIdAndUpdate(audioId, { $addToSet: { likes: req.user.id } });
+  } else if (status === 'removed') {
+    await Audio.findByIdAndUpdate(audioId, { $pull: { likes: req.user.id } });
+  }
+
   res.json({ status });
 }
