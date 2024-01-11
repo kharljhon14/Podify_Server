@@ -1,7 +1,8 @@
-import Audio from '@/models/audio';
+import Audio, { AudioDocument } from '@/models/audio';
 import Favorite from '@/models/favorite';
+import { PopulateFavoriteList } from '@/types/audio';
 import { Request, Response } from 'express';
-import { isValidObjectId } from 'mongoose';
+import { ObjectId, isValidObjectId } from 'mongoose';
 import { title } from 'process';
 
 export async function toggleFavorite(req: Request, res: Response) {
@@ -43,7 +44,9 @@ export async function toggleFavorite(req: Request, res: Response) {
 export async function getFavorites(req: Request, res: Response) {
   const { id } = req.user;
 
-  const favorite = await Favorite.findOne({ owner: id }).populate<{ items: any }>({
+  const favorite = await Favorite.findOne({ owner: id }).populate<{
+    items: PopulateFavoriteList[];
+  }>({
     path: 'items',
     populate: {
       path: 'owner',
@@ -52,12 +55,12 @@ export async function getFavorites(req: Request, res: Response) {
 
   if (!favorite) return res.json({ audios: [] });
 
-  const audios = favorite.items.map((audio: any) => ({
+  const audios = favorite.items.map((audio) => ({
     id: audio._id,
     title: audio.title,
     category: audio.category,
     file: audio.file.url,
-    poster: audio.poster.url,
+    poster: audio.poster?.url,
     owner: { name: audio.owner.name, id: audio.owner._id },
   }));
 
