@@ -1,9 +1,8 @@
-import Audio, { AudioDocument } from '@/models/audio';
+import Audio from '@/models/audio';
 import Favorite from '@/models/favorite';
 import { PopulateFavoriteList } from '@/types/audio';
 import { Request, Response } from 'express';
-import { ObjectId, isValidObjectId } from 'mongoose';
-import { title } from 'process';
+import { isValidObjectId } from 'mongoose';
 
 export async function toggleFavorite(req: Request, res: Response) {
   const audioId = req.query.audioId as string;
@@ -65,4 +64,14 @@ export async function getFavorites(req: Request, res: Response) {
   }));
 
   res.json({ audios });
+}
+
+export async function getIsFavorite(req: Request, res: Response) {
+  const audioId = req.query.audioId as string;
+
+  if (!isValidObjectId(audioId)) return res.status(422).json({ error: 'Invalid audio Id!' });
+
+  const favorite = await Favorite.findOne({ owner: req.user.id, items: audioId });
+
+  res.json({ result: favorite ? true : false });
 }
