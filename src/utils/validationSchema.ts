@@ -54,3 +54,13 @@ export const AudioValidationScehma = object().shape({
   about: string().required('About is missing'),
   category: string().oneOf(categories, 'Invalid category').required('Category is missing'),
 });
+
+export const NewPlaylistValidationScehma = object().shape({
+  title: string().required('Title is missing'),
+  audioId: string().transform(function (value) {
+    return this.isType(value) && isValidObjectId(value) ? value : '';
+  }),
+  visibility: string()
+    .oneOf(['public', 'private'], 'Invalid visibility')
+    .required('visibility is missing'),
+});
