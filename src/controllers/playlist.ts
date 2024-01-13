@@ -19,7 +19,7 @@ export async function createPlaylist(req: CreatePlaylistRequest, res: Response) 
     visibility,
   });
 
-  if (audioId) newPlaylist.items = [audioId as any];
+  if (audioId) newPlaylist.items = [audioId];
 
   await newPlaylist.save();
 
