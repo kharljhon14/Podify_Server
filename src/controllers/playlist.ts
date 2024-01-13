@@ -1,6 +1,6 @@
 import Audio from '@/models/audio';
 import Playlist from '@/models/playlist';
-import { CreatePlaylistRequest } from '@/types/audio';
+import { CreatePlaylistRequest, UpdatePlaylistRequest } from '@/types/audio';
 import { Response } from 'express';
 
 export async function createPlaylist(req: CreatePlaylistRequest, res: Response) {
@@ -19,7 +19,7 @@ export async function createPlaylist(req: CreatePlaylistRequest, res: Response) 
     visibility,
   });
 
-  if (audioId) newPlaylist.items = [audioId];
+  if (audioId) newPlaylist.items = [audioId as any];
 
   await newPlaylist.save();
 
@@ -31,3 +31,5 @@ export async function createPlaylist(req: CreatePlaylistRequest, res: Response) 
     },
   });
 }
+
+export async function updatePlaylist(req: UpdatePlaylistRequest, res: Response) {}

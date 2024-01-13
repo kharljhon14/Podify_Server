@@ -64,3 +64,18 @@ export const NewPlaylistValidationScehma = object().shape({
     .oneOf(['public', 'private'], 'Invalid visibility')
     .required('visibility is missing'),
 });
+
+export const UpdatePlaylistValidationScehma = object().shape({
+  //Playlist id validation
+  id: string().transform(function (value) {
+    return this.isType(value) && isValidObjectId(value) ? value : '';
+  }),
+  title: string().required('Title is missing'),
+  item: string().transform(function (value) {
+    return this.isType(value) && isValidObjectId(value) ? value : '';
+  }),
+
+  visibility: string()
+    .oneOf(['public', 'private'], 'Invalid visibility')
+    .required('visibility is missing'),
+});
