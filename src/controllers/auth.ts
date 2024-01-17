@@ -23,7 +23,6 @@ import { JWT_SECRET, PASSWORD_RESET_LINK } from '@/utils/variables';
 import jwt from 'jsonwebtoken';
 import { RequestWithFiles } from '@/middlewares/fileParser';
 import cloudinary from '@/cloud';
-import { profile } from 'console';
 
 export async function create(req: CreateUserRequest, res: Response) {
   const { email, password, name } = req.body;
