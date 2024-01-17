@@ -3,6 +3,7 @@ import Playlist from '@/models/playlist';
 import { CreatePlaylistRequest, UpdatePlaylistRequest } from '@/types/audio';
 import { error } from 'console';
 import { Request, Response } from 'express';
+import { isValidObjectId } from 'mongoose';
 
 export async function createPlaylist(req: CreatePlaylistRequest, res: Response) {
   const { title, audioId, visibility } = req.body;
@@ -66,15 +67,24 @@ export async function updatePlaylist(req: UpdatePlaylistRequest, res: Response) 
 export async function removePlaylist(req: Request, res: Response) {
   const { playlistId, audioId, all } = req.query;
 
+  if (!isValidObjectId(playlistId)) return res.status(422).json({ error: 'Invalid playlist Id' });
+
   if (all === 'yes') {
     const playlist = await Playlist.findOneAndDelete({ _id: playlistId, owner: req.user.id });
 
     if (!playlist) return res.status(404).json({ error: 'Playlist not found' });
   }
 
-  const playlist = await Playlist.findOneAndUpdate(
-    { _id: playlistId, owner: req.user.id },
-    { $pull: { items: audioId } }
-  );
-  if (!playlist) return res.status(404).json({ error: 'Playlist not found' });
+  if (audioId) {
+    if (!isValidObjectId(audioId)) return res.status(422).json({ error: 'Invalid audio Id' });
+
+    const playlist = await Playlist.findOneAndUpdate(
+      { _id: playlistId, owner: req.user.id },
+      { $pull: { items: audioId } }
+    );
+
+    if (!playlist) return res.status(404).json({ error: 'Playlist not found' });
+  }
+
+  res.json({ success: true });
 }
