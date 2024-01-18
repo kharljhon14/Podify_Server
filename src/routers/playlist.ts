@@ -1,5 +1,6 @@
 import {
   createPlaylist,
+  getAudios,
   getPlaylistByProfile,
   removePlaylist,
   updatePlaylist,
@@ -19,5 +20,6 @@ router.patch('/', mustAuth, validate(UpdatePlaylistValidationScehma), updatePlay
 router.delete('/', mustAuth, removePlaylist);
 
 router.get('/by-profile', mustAuth, getPlaylistByProfile);
+router.get('/:playlistId', mustAuth, getAudios);
 
 export default router;

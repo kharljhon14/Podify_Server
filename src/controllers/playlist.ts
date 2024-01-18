@@ -1,9 +1,10 @@
 import Audio from '@/models/audio';
 import Playlist from '@/models/playlist';
-import { CreatePlaylistRequest, UpdatePlaylistRequest } from '@/types/audio';
+import { CreatePlaylistRequest, PopulateFavoriteList, UpdatePlaylistRequest } from '@/types/audio';
 import { error } from 'console';
 import { Request, Response } from 'express';
 import { isValidObjectId } from 'mongoose';
+import { title } from 'process';
 
 export async function createPlaylist(req: CreatePlaylistRequest, res: Response) {
   const { title, audioId, visibility } = req.body;
@@ -105,4 +106,39 @@ export async function getPlaylistByProfile(req: Request, res: Response) {
   }));
 
   res.json({ data: newPlaylist });
+}
+
+export async function getAudios(req: Request, res: Response) {
+  const { playlistId } = req.params;
+
+  if (!isValidObjectId(playlistId)) return res.status(422).json({ error: 'Invalid playlist ID' });
+
+  const playlist = await Playlist.findOne({ owner: req.user.id, _id: playlistId }).populate<{
+    items: PopulateFavoriteList[];
+  }>({
+    path: 'items',
+    populate: {
+      path: 'owner',
+      select: 'name',
+    },
+  });
+
+  if (!playlist) return res.json({ data: [] });
+
+  const audios = playlist.items.map((item) => ({
+    id: item._id,
+    title: item.title,
+    category: item.category,
+    file: item.file.url,
+    poster: item.poster?.url,
+    owner: { name: item.owner.name, id: item.owner._id },
+  }));
+
+  res.json({
+    data: {
+      id: playlist._id,
+      title: playlist.title,
+      audios,
+    },
+  });
 }
