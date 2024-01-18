@@ -90,9 +90,12 @@ export async function removePlaylist(req: Request, res: Response) {
 }
 
 export async function getPlaylistByProfile(req: Request, res: Response) {
-  const playlist = await Playlist.find({ owner: req.user.id, visibility: { $ne: 'auto' } }).sort(
-    '-createdAt'
-  );
+  const { pageNumber = '0', limit = '20' } = req.query as { pageNumber: string; limit: string };
+
+  const playlist = await Playlist.find({ owner: req.user.id, visibility: { $ne: 'auto' } })
+    .skip(parseInt(pageNumber) * parseInt(limit))
+    .limit(parseInt(limit))
+    .sort('-createdAt');
 
   const newPlaylist = playlist.map((item) => ({
     id: item._id,
