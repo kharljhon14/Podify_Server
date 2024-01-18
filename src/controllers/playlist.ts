@@ -88,3 +88,10 @@ export async function removePlaylist(req: Request, res: Response) {
 
   res.json({ success: true });
 }
+
+export async function getPlaylistByProfile(req: Request, res: Response) {
+  const playlist = await Playlist.find({ owner: req.user.id, visibility: { $ne: 'auto' } }).sort(
+    '-createdAt'
+  );
+  res.json({ data: playlist });
+}
